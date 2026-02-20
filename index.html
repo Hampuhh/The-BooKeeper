@@ -1,32 +1,44 @@
-
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta línea evita que la pantalla haga "zoom" al tocar botones, para que se sienta como una App nativa de iPhone -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Color de la barra de estado del celular -->
     <meta name="theme-color" content="#f472b6">
     <title>The BooKeeper</title>
     
-    <!-- Ícono para la computadora -->
     <link rel="icon" href="osito.png">
-    <!-- Ícono para tu pantalla de inicio del iPhone 📱✨ -->
     <link rel="apple-touch-icon" href="osito.png">
-    
-    <!-- Enlace al Manifest para convertir en PWA -->
     <link rel="manifest" href="manifest.json">
     
-    <!-- Librerías mágicas (Tailwind para el diseño y React para la funcionalidad) -->
+    <!-- FUENTE JAPONESA KAWAII (M PLUS Rounded 1c) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuración para que Tailwind use la nueva fuente redondeada -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"M PLUS Rounded 1c"', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="antialiased">
+<body class="antialiased font-sans">
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- ÍCONOS NATIVOS ---
         const IconPlus = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
@@ -39,6 +51,8 @@
         const IconEdit2 = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>);
         const IconExternalLink = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>);
         const IconTrash = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
+        const IconDownload = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>);
+        const IconUpload = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>);
 
         const IMAGEN_OSITO = "osito.png";
 
@@ -106,6 +120,10 @@
           const [editandoMeta, setEditandoMeta] = useState(false);
           const [mostrarCelebracion, setMostrarCelebracion] = useState(false);
           const [lecturaABorrar, setLecturaABorrar] = useState(null);
+          
+          // Estados para el sistema de respaldos
+          const fileInputRef = useRef(null);
+          const [errorMensaje, setErrorMensaje] = useState("");
 
           // Calcular días automáticamente
           useEffect(() => {
@@ -154,6 +172,36 @@
           const abrirDetalle = (lectura) => {
             setLecturaActual(lectura);
             setVista('detalle');
+          };
+
+          // --- FUNCIONES DE RESPALDO ---
+          const exportarDatos = () => {
+            const dataStr = JSON.stringify({ lecturas, metaLectura });
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = 'bookeeper_respaldo.json';
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+          };
+
+          const importarDatos = (event) => {
+            if (!event.target.files || event.target.files.length === 0) return;
+            const fileReader = new FileReader();
+            fileReader.readAsText(event.target.files[0], "UTF-8");
+            fileReader.onload = e => {
+              try {
+                const content = JSON.parse(e.target.result);
+                if (content.lecturas) setLecturas(content.lecturas);
+                if (content.metaLectura) setMetaLectura(content.metaLectura);
+                setMostrarCelebracion(true);
+                setTimeout(() => setMostrarCelebracion(false), 3500);
+              } catch (error) {
+                setErrorMensaje("El archivo no parece ser un respaldo válido de The BooKeeper 🥺. Asegúrate de subir el archivo .json correcto.");
+              }
+              // Resetear el input para permitir subir el mismo archivo si es necesario
+              if(fileInputRef.current) fileInputRef.current.value = "";
+            };
           };
 
           const renderizarEstrellas = (cantidad, icono = "⭐") => {
@@ -228,12 +276,34 @@
                     </div>
                   </div>
 
-                  <button 
-                    onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }}
-                    className="bg-pink-400 hover:bg-pink-500 text-white p-4 rounded-2xl shadow-lg hover:shadow-pink-300/50 transition-all transform hover:-translate-y-1 self-end md:self-auto"
-                  >
-                    <IconPlus size={24} />
-                  </button>
+                  {/* BOTONES DE RESPALDO Y NUEVA LECTURA */}
+                  <div className="flex gap-2 self-end md:self-auto">
+                    <input type="file" accept=".json" style={{display: 'none'}} ref={fileInputRef} onChange={importarDatos} />
+                    
+                    <button 
+                      onClick={() => fileInputRef.current.click()} 
+                      className="bg-white hover:bg-pink-50 text-pink-400 p-3 md:p-4 rounded-2xl shadow-sm border border-pink-100 transition-all transform hover:-translate-y-1 flex items-center justify-center"
+                      title="Importar Respaldo"
+                    >
+                      <IconUpload size={24} />
+                    </button>
+                    
+                    <button 
+                      onClick={exportarDatos} 
+                      className="bg-white hover:bg-pink-50 text-pink-400 p-3 md:p-4 rounded-2xl shadow-sm border border-pink-100 transition-all transform hover:-translate-y-1 flex items-center justify-center"
+                      title="Exportar Respaldo"
+                    >
+                      <IconDownload size={24} />
+                    </button>
+
+                    <button 
+                      onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }}
+                      className="bg-pink-400 hover:bg-pink-500 text-white p-3 md:p-4 rounded-2xl shadow-lg hover:shadow-pink-300/50 transition-all transform hover:-translate-y-1 flex items-center justify-center"
+                      title="Nueva Lectura"
+                    >
+                      <IconPlus size={24} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -249,11 +319,11 @@
                         </span>
                         <span className="flex">{renderizarEstrellas(lectura.estrellas)}</span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2">{lectura.titulo}</h3>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2 leading-tight">{lectura.titulo}</h3>
                       <p className="text-gray-500 text-sm mb-4">👤 {lectura.autor}</p>
                       <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">📑 {lectura.genero}</span>
-                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">✨ {lectura.puntaje}/10</span>
+                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 font-medium">📑 {lectura.genero}</span>
+                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 font-medium">✨ {lectura.puntaje}/10</span>
                       </div>
                     </div>
                   ))}
@@ -267,7 +337,7 @@
             return (
               <div className="max-w-3xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex justify-between items-center mb-6">
-                  <button onClick={() => setVista('lista')} className="flex items-center text-pink-500 hover:text-pink-600 font-medium bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm transition-colors shadow-sm">
+                  <button onClick={() => setVista('lista')} className="flex items-center text-pink-500 hover:text-pink-600 font-bold bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm transition-colors shadow-sm">
                     <IconChevronLeft size={20} className="mr-1" /> Volver a la biblioteca
                   </button>
                   
@@ -299,11 +369,11 @@
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 ${lecturaActual.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
                           🎓 {lecturaActual.tipo}
                         </span>
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">{lecturaActual.titulo}</h2>
-                        <p className="text-xl text-gray-500 font-medium">👤 {lecturaActual.autor}</p>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2 leading-tight">{lecturaActual.titulo}</h2>
+                        <p className="text-xl text-gray-500 font-bold">👤 {lecturaActual.autor}</p>
                         
                         {lecturaActual.link && (
-                          <a href={lecturaActual.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-sm font-semibold text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors border border-blue-100">
+                          <a href={lecturaActual.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-sm font-bold text-blue-500 hover:text-blue-600 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full transition-colors border border-blue-100">
                             <IconExternalLink size={14} /> Leer historia original
                           </a>
                         )}
@@ -331,7 +401,7 @@
 
                     {lecturaActual.cita && (
                       <div className="bg-gradient-to-r from-pink-100/50 to-purple-100/50 rounded-2xl p-6 mb-8 relative">
-                        <span className="text-4xl absolute top-2 left-4 opacity-20">"</span>
+                        <span className="text-4xl absolute top-2 left-4 opacity-20 font-bold">"</span>
                         <p className="text-gray-700 font-medium text-lg italic text-center px-6">"{lecturaActual.cita}"</p>
                         <p className="text-right text-xs text-pink-400 font-bold uppercase mt-2">✒️ Mejor cita</p>
                       </div>
@@ -340,7 +410,7 @@
                     <div className="space-y-6">
                       <div>
                         <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 flex items-center gap-2"><IconSparkles size={16}/> Reseña</h3>
-                        <p className="text-gray-700 bg-white/50 p-5 rounded-2xl border border-pink-50 leading-relaxed">
+                        <p className="text-gray-700 bg-white/50 p-5 rounded-2xl border border-pink-50 leading-relaxed font-medium">
                           {lecturaActual.resena || "Sin reseña todavía... 🍵"}
                         </p>
                       </div>
@@ -348,17 +418,17 @@
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white/50 p-5 rounded-2xl border border-pink-50 space-y-3">
                           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 border-b border-pink-100 pb-2">Detalles Generales</h3>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>📑 Género:</span> <span className="font-semibold">{lecturaActual.genero}</span></p>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>📱 Formato:</span> <span className="font-semibold">{lecturaActual.formato}</span></p>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>🌍 Ubicación:</span> <span className="font-semibold">{lecturaActual.ubicacion}</span></p>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>🔁 ¿Reelería?:</span> <span className="font-semibold">{lecturaActual.reeleria}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>📑 Género:</span> <span className="font-bold">{lecturaActual.genero}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>📱 Formato:</span> <span className="font-bold">{lecturaActual.formato}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>🌍 Ubicación:</span> <span className="font-bold">{lecturaActual.ubicacion}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>🔁 ¿Reelería?:</span> <span className="font-bold">{lecturaActual.reeleria}</span></p>
                         </div>
                         
                         <div className="bg-white/50 p-5 rounded-2xl border border-pink-50 space-y-3">
                           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-2 border-b border-pink-100 pb-2">Tiempos</h3>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>📅 Inicio:</span> <span className="font-semibold">{lecturaActual.fechaInicio}</span></p>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>🏁 Fin:</span> <span className="font-semibold">{lecturaActual.fechaFin}</span></p>
-                          <p className="text-gray-700 text-sm flex justify-between"><span>⏳ Total días:</span> <span className="font-semibold bg-pink-100 text-pink-600 px-2 rounded-md">{lecturaActual.dias}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>📅 Inicio:</span> <span className="font-bold">{lecturaActual.fechaInicio}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>🏁 Fin:</span> <span className="font-bold">{lecturaActual.fechaFin}</span></p>
+                          <p className="text-gray-700 text-sm flex justify-between"><span>⏳ Total días:</span> <span className="font-bold bg-pink-100 text-pink-600 px-2 rounded-md">{lecturaActual.dias}</span></p>
                         </div>
                       </div>
 
@@ -368,10 +438,10 @@
                             <IconBookHeart size={16}/> Detalles de Fanfic
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
-                            <p className="text-gray-700 text-sm"><span>🌐 Plataforma:</span> <br/><span className="font-semibold">{lecturaActual.plataforma}</span></p>
-                            <p className="text-gray-700 text-sm"><span>📊 Estado:</span> <br/><span className="font-semibold">{lecturaActual.estadoPub}</span></p>
-                            <p className="text-gray-700 text-sm"><span>✂️ Palabras:</span> <br/><span className="font-semibold">{lecturaActual.palabras}</span></p>
-                            <p className="text-gray-700 text-sm"><span>🎭 Troop:</span> <br/><span className="font-semibold">{lecturaActual.troop}</span></p>
+                            <p className="text-gray-700 text-sm"><span>🌐 Plataforma:</span> <br/><span className="font-bold">{lecturaActual.plataforma}</span></p>
+                            <p className="text-gray-700 text-sm"><span>📊 Estado:</span> <br/><span className="font-bold">{lecturaActual.estadoPub}</span></p>
+                            <p className="text-gray-700 text-sm"><span>✂️ Palabras:</span> <br/><span className="font-bold">{lecturaActual.palabras}</span></p>
+                            <p className="text-gray-700 text-sm"><span>🎭 Troop:</span> <br/><span className="font-bold">{lecturaActual.troop}</span></p>
                           </div>
                         </div>
                       )}
@@ -383,7 +453,7 @@
           };
 
           const renderVistaFormulario = () => {
-            const inputStyle = "w-full bg-white/60 border border-pink-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition-all shadow-sm";
+            const inputStyle = "w-full bg-white/60 border border-pink-200 rounded-xl px-4 py-3 text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition-all shadow-sm";
             const labelStyle = "block text-sm font-bold text-gray-600 mb-1 ml-1";
 
             return (
@@ -559,16 +629,30 @@
           };
 
           return (
-            <div className="min-h-screen bg-[#fff5f7] bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] font-sans text-slate-700 selection:bg-pink-200">
+            <div className="min-h-screen bg-[#fff5f7] bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] text-slate-700 selection:bg-pink-200">
               
               {mostrarCelebracion && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-sm animate-in fade-in duration-300">
                   <div className="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-pink-200 flex flex-col items-center animate-in zoom-in-50 bounce duration-500 transform scale-110">
                     <div className="text-6xl mb-4 animate-bounce">🎉🌸📚</div>
                     <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 text-center mb-2">
-                      ¡Lectura Completada!
+                      ¡Éxito!
                     </h2>
                     <p className="text-pink-500 font-bold bg-pink-50 px-4 py-1 rounded-full">¡Sigue así, The BooKeeper!</p>
+                  </div>
+                </div>
+              )}
+
+              {/* MODAL PARA ERRORES DE IMPORTACIÓN */}
+              {errorMensaje && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                  <div className="bg-white p-8 rounded-[2rem] shadow-2xl border-4 border-rose-100 max-w-sm w-full mx-4 flex flex-col items-center text-center transform animate-in zoom-in-95">
+                    <div className="text-5xl mb-4">🥺</div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2">¡Oh no!</h3>
+                    <p className="text-gray-600 mb-6 font-medium">{errorMensaje}</p>
+                    <button onClick={() => setErrorMensaje("")} className="w-full bg-pink-400 hover:bg-pink-500 text-white font-bold py-3 rounded-xl transition-colors shadow-md">
+                      Entendido
+                    </button>
                   </div>
                 </div>
               )}
@@ -581,7 +665,7 @@
                       <IconTrash size={32} />
                     </div>
                     <h3 className="text-2xl font-bold text-gray-800 mb-2">¿Estás seguro?</h3>
-                    <p className="text-gray-600 mb-6">Esta acción no se puede deshacer. ¿Seguro que quieres borrar este recuerdo? 🥺</p>
+                    <p className="text-gray-600 mb-6 font-medium">Esta acción no se puede deshacer. ¿Seguro que quieres borrar este recuerdo? 🥺</p>
                     <div className="flex gap-3 w-full">
                       <button onClick={() => setLecturaABorrar(null)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-colors">
                         Cancelar
@@ -607,7 +691,6 @@
         root.render(<App />);
     </script>
     
-    <!-- Script para registrar el Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
