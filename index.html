@@ -2,22 +2,34 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta línea evita que la pantalla haga "zoom" al tocar botones, para que se sienta como una App nativa de iPhone -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Color de la barra de estado del celular -->
     <meta name="theme-color" content="#f472b6">
     <title>The BooKeeper</title>
     
-    <!-- Ícono para la computadora -->
     <link rel="icon" href="osito.png">
-    <!-- Ícono para tu pantalla de inicio del iPhone 📱✨ -->
     <link rel="apple-touch-icon" href="osito.png">
     
-    <!-- Enlace al Manifest para convertir en PWA -->
     <link rel="manifest" href="manifest.json">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     
-    <!-- Librerías mágicas (Tailwind para el diseño y React para la funcionalidad) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Nunito', 'sans-serif'], 
+              fredoka: ['Fredoka', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -189,7 +201,7 @@
                         style={estiloOsito}
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
-                      <h1 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2 pb-2">
+                      <h1 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2 pb-2 font-fredoka">
                         <IconLibrary size={28} className="text-pink-400" /> The BooKeeper 🌸
                       </h1>
                     </div>
@@ -249,7 +261,7 @@
                         </span>
                         <span className="flex">{renderizarEstrellas(lectura.estrellas)}</span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2">{lectura.titulo}</h3>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2 font-fredoka">{lectura.titulo}</h3>
                       <p className="text-gray-500 text-sm mb-4">👤 {lectura.autor}</p>
                       <div className="flex flex-wrap gap-2 text-xs text-gray-600">
                         <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">📑 {lectura.genero}</span>
@@ -299,7 +311,7 @@
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 ${lecturaActual.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
                           🎓 {lecturaActual.tipo}
                         </span>
-                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2">{lecturaActual.titulo}</h2>
+                        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2 font-fredoka">{lecturaActual.titulo}</h2>
                         <p className="text-xl text-gray-500 font-medium">👤 {lecturaActual.autor}</p>
                         
                         {lecturaActual.link && (
@@ -389,7 +401,7 @@
             return (
               <div className="max-w-3xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-8 duration-500">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2">
+                  <h2 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2 font-fredoka">
                     <IconSparkles size={28} className="text-pink-400" /> {formData.id ? 'Editando Aventura 🍡' : 'Nueva Aventura 🍡'}
                   </h2>
                   <button onClick={() => setVista('lista')} className="bg-white p-2 rounded-full text-pink-400 hover:text-pink-600 hover:bg-pink-50 transition-colors shadow-sm">
@@ -559,13 +571,13 @@
           };
 
           return (
-            <div className="min-h-screen bg-[#fff5f7] bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] font-sans text-slate-700 selection:bg-pink-200">
+            <div className="min-h-screen bg-fixed bg-[#fff5f7] bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] font-sans text-slate-700 selection:bg-pink-200">
               
               {mostrarCelebracion && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-sm animate-in fade-in duration-300">
                   <div className="bg-white p-10 rounded-[3rem] shadow-2xl border-4 border-pink-200 flex flex-col items-center animate-in zoom-in-50 bounce duration-500 transform scale-110">
                     <div className="text-6xl mb-4 animate-bounce">🎉🌸📚</div>
-                    <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 text-center mb-2">
+                    <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-500 text-center mb-2 font-fredoka">
                       ¡Lectura Completada!
                     </h2>
                     <p className="text-pink-500 font-bold bg-pink-50 px-4 py-1 rounded-full">¡Sigue así, The BooKeeper!</p>
@@ -580,7 +592,7 @@
                     <div className="w-16 h-16 bg-rose-50 text-rose-400 rounded-full flex items-center justify-center mb-4">
                       <IconTrash size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-2">¿Estás seguro?</h3>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-fredoka">¿Estás seguro?</h3>
                     <p className="text-gray-600 mb-6">Esta acción no se puede deshacer. ¿Seguro que quieres borrar este recuerdo? 🥺</p>
                     <div className="flex gap-3 w-full">
                       <button onClick={() => setLecturaABorrar(null)} className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-colors">
@@ -607,7 +619,6 @@
         root.render(<App />);
     </script>
     
-    <!-- Script para registrar el Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
