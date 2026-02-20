@@ -1,328 +1,417 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#f472b6">
-  <title>The BooKeeper</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f472b6">
+    <title>The BooKeeper</title>
+    
+    <link rel="icon" href="osito.png">
+    <link rel="apple-touch-icon" href="osito.png">
+    <link rel="manifest" href="manifest.json">
 
-  <link rel="icon" href="osito.png">
-  <link rel="apple-touch-icon" href="osito.png">
-  <link rel="manifest" href="manifest.json">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Nunito', 'sans-serif'],
-            fredoka: ['Fredoka', 'sans-serif'],
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Nunito', 'sans-serif'], 
+              fredoka: ['Fredoka', 'sans-serif'],
+            }
           }
         }
       }
-    }
-  </script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body class="antialiased">
-  <div id="root"></div>
+<body class="antialiased overflow-x-hidden">
+    <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useEffect } = React;
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-    // --- ÍCONOS ---
-    const IconPlus = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
-    const IconX = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
-    const IconChevronLeft = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6"></polyline></svg>);
-    const IconBookHeart = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path><path d="M16 8.26c-.72-1.3-2.61-1.3-3.33 0l-.67 1.2-.67-1.2c-.72-1.3-2.61-1.3-3.33 0s-.65 2.7.35 4.04l3.65 4.7 3.65-4.7c1-1.34 1.07-2.74.35-4.04z"></path></svg>);
-    const IconLibrary = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>);
-    const IconSparkles = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>);
-    const IconCheck = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>);
-    const IconEdit2 = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>);
-    const IconExternalLink = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>);
-    const IconTrash = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
+        // --- ÍCONOS NATIVOS ---
+        const IconPlus = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>);
+        const IconX = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>);
+        const IconChevronLeft = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="15 18 9 12 15 6"></polyline></svg>);
+        const IconBookHeart = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path><path d="M16 8.26c-.72-1.3-2.61-1.3-3.33 0l-.67 1.2-.67-1.2c-.72-1.3-2.61-1.3-3.33 0s-.65 2.7.35 4.04l3.65 4.7 3.65-4.7c1-1.34 1.07-2.74.35-4.04z"></path></svg>);
+        const IconLibrary = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>);
+        const IconSparkles = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path></svg>);
+        const IconCheck = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="20 6 9 17 4 12"></polyline></svg>);
+        const IconEdit2 = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>);
+        const IconExternalLink = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>);
+        const IconTrash = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
 
-    const IMAGEN_OSITO = "osito.png";
-    const estadoInicialFormulario = {
-      titulo: '', autor: '', genero: '', fechaInicio: '', fechaFin: '', dias: '', formato: 'Físico',
-      puntaje: '', estrellas: 3, resena: '', tipo: 'Libro', cita: '', termometro: 3,
-      ubicacion: '', reeleria: 'Sí', spicometro: 1,
-      plataforma: 'AO3', estadoPub: 'En curso', palabras: '', troop: '', link: ''
-    };
+        const IMAGEN_OSITO = "osito.png";
+        const dummyData = [];
+        const estadoInicialFormulario = {
+          titulo: '', autor: '', genero: '', fechaInicio: '', fechaFin: '', dias: '', formato: 'Físico',
+          puntaje: '', estrellas: 3, resena: '', tipo: 'Libro', cita: '', termometro: 3,
+          ubicacion: '', reeleria: 'Sí', spicometro: 1,
+          plataforma: 'AO3', estadoPub: 'En curso', palabras: '', troop: '', link: ''
+        };
 
-    function App() {
-      const [lecturas, setLecturas] = useState(() => {
-        const saved = localStorage.getItem('thebk_data');
-        return saved ? JSON.parse(saved) : [];
-      });
-      const [vista, setVista] = useState('lista'); 
-      const [lecturaActual, setLecturaActual] = useState(null);
-      const [formData, setFormData] = useState(estadoInicialFormulario);
-      const [metaLectura, setMetaLectura] = useState(() => {
-        const savedMeta = localStorage.getItem('thebk_meta');
-        return savedMeta ? parseInt(savedMeta) : 20;
-      });
-      const [editandoMeta, setEditandoMeta] = useState(false);
-      const [mostrarCelebracion, setMostrarCelebracion] = useState(false);
-      const [lecturaABorrar, setLecturaABorrar] = useState(null);
+        function App() {
+          const [lecturas, setLecturas] = useState(() => {
+            const saved = localStorage.getItem('thebk_data');
+            return saved ? JSON.parse(saved) : dummyData;
+          });
+          const [vista, setVista] = useState('lista'); 
+          const [lecturaActual, setLecturaActual] = useState(null);
+          const [formData, setFormData] = useState(estadoInicialFormulario);
 
-      useEffect(() => { localStorage.setItem('thebk_data', JSON.stringify(lecturas)); }, [lecturas]);
-      useEffect(() => { localStorage.setItem('thebk_meta', metaLectura.toString()); }, [metaLectura]);
+          const [metaLectura, setMetaLectura] = useState(() => {
+            const savedMeta = localStorage.getItem('thebk_meta');
+            return savedMeta ? parseInt(savedMeta) : 20;
+          });
+          const [editandoMeta, setEditandoMeta] = useState(false);
+          const [mostrarCelebracion, setMostrarCelebracion] = useState(false);
+          const [lecturaABorrar, setLecturaABorrar] = useState(null);
 
-      useEffect(() => {
-        if (formData.fechaInicio && formData.fechaFin) {
-          const inicio = new Date(formData.fechaInicio);
-          const fin = new Date(formData.fechaFin);
-          const diff = Math.ceil((fin.getTime() - inicio.getTime()) / (1000 * 3600 * 24));
-          if (diff >= 0) setFormData(prev => ({ ...prev, dias: diff }));
-        }
-      }, [formData.fechaInicio, formData.fechaFin]);
+          useEffect(() => { localStorage.setItem('thebk_data', JSON.stringify(lecturas)); }, [lecturas]);
+          useEffect(() => { localStorage.setItem('thebk_meta', metaLectura.toString()); }, [metaLectura]);
 
-      const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-      };
+          useEffect(() => {
+            if (formData.fechaInicio && formData.fechaFin) {
+              const inicio = new Date(formData.fechaInicio);
+              const fin = new Date(formData.fechaFin);
+              const diferenciaTiempo = fin.getTime() - inicio.getTime();
+              const diferenciaDias = Math.ceil(diferenciaTiempo / (1000 * 3600 * 24));
+              if (diferenciaDias >= 0) {
+                setFormData(prev => ({ ...prev, dias: diferenciaDias }));
+              }
+            }
+          }, [formData.fechaInicio, formData.fechaFin]);
 
-      const guardarLectura = (e) => {
-        e.preventDefault();
-        if (formData.id) {
-          setLecturas(lecturas.map(l => l.id === formData.id ? formData : l));
-        } else {
-          setLecturas([{ ...formData, id: Date.now() }, ...lecturas]);
-        }
-        setVista('lista');
-        setFormData(estadoInicialFormulario);
-        setMostrarCelebracion(true);
-        setTimeout(() => setMostrarCelebracion(false), 3000);
-      };
+          const handleInputChange = (e) => {
+            const { name, value } = e.target;
+            setFormData(prev => ({ ...prev, [name]: value }));
+          };
 
-      const renderizarEstrellas = (cantidad, icono = "⭐") => (
-        Array.from({ length: 5 }).map((_, i) => (
-          <span key={i} className={`text-xl ${i < cantidad ? 'opacity-100' : 'opacity-30 grayscale'}`}>
-            {icono}
-          </span>
-        ))
-      );
+          const guardarLectura = (e) => {
+            e.preventDefault();
+            if (formData.id) {
+              setLecturas(lecturas.map(l => l.id === formData.id ? formData : l));
+              if (lecturaActual && lecturaActual.id === formData.id) setLecturaActual(formData);
+            } else {
+              const nuevaLectura = { ...formData, id: Date.now() };
+              setLecturas([nuevaLectura, ...lecturas]);
+            }
+            setVista('lista');
+            setFormData(estadoInicialFormulario);
+            setMostrarCelebracion(true);
+            setTimeout(() => setMostrarCelebracion(false), 3500);
+          };
 
-      const renderizarTermometro = (valor) => {
-        const caritas = ['😱', '😩', '😐', '😊', '😍'];
-        return caritas.map((carita, i) => (
-          <span key={i} className={`text-2xl inline-block mx-0.5 ${i + 1 === parseInt(valor) ? 'opacity-100 scale-125' : 'opacity-30 grayscale scale-90'}`}>
-            {carita}
-          </span>
-        ));
-      };
+          const confirmarEliminar = () => {
+            if (lecturaABorrar) {
+              setLecturas(lecturas.filter(l => l.id !== lecturaABorrar.id));
+              setLecturaABorrar(null);
+              setVista('lista');
+            }
+          };
 
-      const renderVistaLista = () => {
-        const progreso = Math.min(100, (lecturas.length / metaLectura) * 100);
-        return (
-          <div className="space-y-6 pb-24 relative z-10">
-            <div className="bg-white/60 p-5 rounded-3xl shadow-sm backdrop-blur-md border border-pink-100">
-              <div className="flex items-center gap-3 mb-4">
-                <img src={IMAGEN_OSITO} className="w-14 h-14 object-contain animate-bounce" onError={e => e.target.style.display='none'} />
-                <h1 className="text-2xl font-extrabold text-pink-500 font-fredoka flex items-center gap-2">
-                  <IconLibrary size={24} /> The BooKeeper 🌸
-                </h1>
-              </div>
-              
-              <div className="bg-white/50 p-4 rounded-2xl border border-pink-50">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-bold text-gray-500 flex items-center gap-1 font-fredoka">
-                    Meta Anual 🎯 
-                    {!editandoMeta && <button onClick={() => setEditandoMeta(true)} className="text-pink-400 p-1"><IconEdit2 size={12} /></button>}
-                  </span>
-                  {editandoMeta ? (
-                    <div className="flex items-center gap-1">
-                      <input type="number" value={metaLectura} onChange={e => setMetaLectura(Math.max(1, parseInt(e.target.value) || 1))} className="w-12 text-center border rounded p-1 text-xs" autoFocus />
-                      <button onClick={() => setEditandoMeta(false)} className="text-green-500"><IconCheck size={16}/></button>
+          const renderizarEstrellas = (cantidad, icono = "⭐") => {
+            return Array.from({ length: 5 }).map((_, i) => (
+              <span key={i} className={`text-xl ${i < cantidad ? 'opacity-100' : 'opacity-30 grayscale'}`}>
+                {icono}
+              </span>
+            ));
+          };
+
+          const renderizarTermometro = (valor) => {
+            const caritas = ['😱', '😩', '😐', '😊', '😍'];
+            return caritas.map((carita, i) => (
+              <span key={i} className={`text-2xl transition-all duration-300 inline-block mx-0.5 ${i + 1 === parseInt(valor || 0) ? 'opacity-100 transform scale-125 drop-shadow-md' : 'opacity-30 grayscale scale-90'}`}>
+                {carita}
+              </span>
+            ));
+          };
+
+          const renderVistaLista = () => {
+            const progreso = Math.min(100, (lecturas.length / metaLectura) * 100);
+            return (
+              <div className="space-y-6 pb-24 relative z-10">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white/60 p-6 rounded-3xl shadow-sm backdrop-blur-md border border-pink-100 gap-4">
+                  <div className="w-full md:w-auto">
+                    <div className="flex items-end gap-3 mb-2">
+                      <img src={IMAGEN_OSITO} alt="Osito" className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md animate-bounce" onError={(e) => { e.target.style.display = 'none'; }} />
+                      <h1 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2 pb-2 font-fredoka">
+                        <IconLibrary size={28} className="text-pink-400" /> The BooKeeper 🌸
+                      </h1>
+                    </div>
+                    <div className="mt-4 bg-white/50 p-4 rounded-2xl border border-pink-50 w-full md:min-w-[300px]">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-gray-500 flex items-center gap-1 font-fredoka">Meta Anual 🎯 
+                          {!editandoMeta && <button onClick={() => setEditandoMeta(true)} className="text-pink-400 hover:text-pink-600 ml-1 p-1"><IconEdit2 size={14} /></button>}
+                        </span>
+                        {editandoMeta ? (
+                          <div className="flex items-center gap-2">
+                            <input type="number" value={metaLectura} onChange={(e) => setMetaLectura(Math.max(1, parseInt(e.target.value) || 1))} className="w-16 text-center border border-pink-200 rounded-lg text-sm p-1" autoFocus />
+                            <button onClick={() => setEditandoMeta(false)} className="text-green-500"><IconCheck size={16}/></button>
+                          </div>
+                        ) : (
+                          <span className="text-sm font-bold text-pink-500 bg-pink-50 px-2 py-1 rounded-md">{lecturas.length} / {metaLectura}</span>
+                        )}
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div className="bg-gradient-to-r from-pink-300 to-pink-500 h-3 rounded-full transition-all duration-1000" style={{width: `${progreso}%`}}></div>
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }} className="bg-pink-400 hover:bg-pink-500 text-white p-4 rounded-2xl shadow-lg transform hover:-translate-y-1 self-end md:self-auto">
+                    <IconPlus size={24} />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
+                  {lecturas.length === 0 ? (
+                    <div className="md:col-span-3 text-center py-20 bg-white/40 rounded-[3rem] border-2 border-dashed border-pink-200 px-4">
+                      <p className="text-pink-400 font-bold text-xl mb-2 font-fredoka">Tu biblioteca está vacía ✨</p>
+                      <p className="text-gray-500">¡Presiona el botón rosa para empezar tu aventura!</p>
                     </div>
                   ) : (
-                    <span className="text-xs font-bold text-pink-500 bg-pink-50 px-2 py-1 rounded-md">{lecturas.length} / {metaLectura}</span>
+                    lecturas.map(l => (
+                      <div key={l.id} onClick={() => { setLecturaActual(l); setVista('detalle'); }} className="group bg-white/70 hover:bg-white backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md border border-pink-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
+                        <div className="flex justify-between items-start mb-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${l.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>{l.tipo}</span>
+                          <span className="flex scale-90 origin-right">{renderizarEstrellas(l.estrellas)}</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2 font-fredoka">{l.titulo}</h3>
+                        <p className="text-gray-500 text-sm mb-4">👤 {l.autor}</p>
+                        <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                          <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">📑 {l.genero}</span>
+                          <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">✨ {l.puntaje}/10</span>
+                        </div>
+                      </div>
+                    ))
                   )}
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                  <div className="bg-gradient-to-r from-pink-300 to-pink-500 h-full transition-all duration-1000" style={{width: `${progreso}%`}}></div>
-                </div>
               </div>
-            </div>
+            );
+          };
 
-            <div className="grid grid-cols-1 gap-4 font-sans">
-              {lecturas.length === 0 ? (
-                <div className="text-center py-16 bg-white/40 rounded-3xl border-2 border-dashed border-pink-200">
-                  <p className="text-pink-400 font-bold font-fredoka">Tu biblioteca está vacía ✨</p>
+          const renderVistaDetalle = () => {
+            if (!lecturaActual) return null;
+            const styleFila = "flex justify-between items-center text-sm py-2 border-b border-pink-50 last:border-0";
+            return (
+              <div className="max-w-3xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10 px-2">
+                <div className="flex flex-row justify-between items-center mb-6 font-fredoka gap-2">
+                  <button onClick={() => setVista('lista')} className="flex items-center text-pink-500 bg-white/50 px-4 py-2 rounded-full backdrop-blur-sm shadow-sm text-sm">
+                    <IconChevronLeft size={18} className="mr-1" /> Volver
+                  </button>
+                  <div className="flex gap-2">
+                    <button onClick={() => setLecturaABorrar(lecturaActual)} className="text-rose-400 bg-rose-50 p-2 rounded-full"><IconTrash size={20} /></button>
+                    <button onClick={() => { setFormData(lecturaActual); setVista('formulario'); }} className="text-pink-500 bg-pink-100 px-4 py-2 rounded-full font-bold text-sm">Editar</button>
+                  </div>
                 </div>
-              ) : (
-                lecturas.map(l => (
-                  <div key={l.id} onClick={() => { setLecturaActual(l); setVista('detalle'); }} className="bg-white/70 p-5 rounded-3xl shadow-sm border border-pink-100 active:scale-95 transition-transform">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${l.type === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>{l.tipo}</span>
-                      <div className="flex scale-75 origin-right">{renderizarEstrellas(l.estrellas)}</div>
+
+                <div className="bg-white/80 backdrop-blur-md rounded-[2.5rem] p-6 md:p-10 shadow-xl border border-pink-100 relative overflow-hidden">
+                  <div className="relative z-10 font-sans">
+                    <div className="flex flex-col md:flex-row gap-6 items-start mb-8">
+                      <div className="w-24 h-32 bg-gradient-to-br from-pink-300 to-purple-300 rounded-2xl shadow-md flex items-center justify-center flex-shrink-0 transform -rotate-3 border-4 border-white mx-auto md:mx-0">
+                        <IconBookHeart size={40} className="text-white opacity-80" />
+                      </div>
+                      <div className="text-center md:text-left w-full">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 ${lecturaActual.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>🎓 {lecturaActual.tipo}</span>
+                        <h2 className="text-2xl md:text-4xl font-extrabold text-gray-800 mb-2 font-fredoka leading-tight">{lecturaActual.titulo}</h2>
+                        <p className="text-lg text-gray-500 font-medium font-fredoka">👤 {lecturaActual.autor}</p>
+                        {lecturaActual.link && (
+                          <a href={lecturaActual.link} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-blue-500 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                            <IconExternalLink size={14} /> Leer historia original
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 font-fredoka leading-tight">{l.titulo}</h3>
-                    <p className="text-gray-500 text-xs mt-1">👤 {l.autor}</p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8 font-fredoka">
+                      <div className="bg-pink-50 rounded-2xl p-3 border border-pink-100 text-center">
+                        <p className="text-[10px] text-pink-400 font-bold uppercase mb-1">Estrellas</p>
+                        <div className="flex justify-center scale-75">{renderizarEstrellas(lecturaActual.estrellas)}</div>
+                      </div>
+                      <div className="bg-pink-50 rounded-2xl p-3 border border-pink-100 text-center">
+                        <p className="text-[10px] text-pink-400 font-bold uppercase mb-1">Puntaje</p>
+                        <p className="text-lg font-bold text-gray-700">{lecturaActual.puntaje}</p>
+                      </div>
+                      <div className="bg-pink-50 rounded-2xl p-3 border border-pink-100 text-center">
+                        <p className="text-[10px] text-pink-400 font-bold uppercase mb-1">Termómetro</p>
+                        <div className="flex justify-center items-center h-6 scale-75">{renderizarTermometro(lecturaActual.termometro)}</div>
+                      </div>
+                      <div className="bg-pink-50 rounded-2xl p-3 border border-pink-100 text-center">
+                        <p className="text-[10px] text-pink-400 font-bold uppercase mb-1">Spicómetro</p>
+                        <div className="flex justify-center scale-75">{renderizarEstrellas(lecturaActual.spicometro, "🌶️")}</div>
+                      </div>
+                    </div>
+
+                    {lecturaActual.cita && (
+                      <div className="bg-gradient-to-r from-pink-100/50 to-purple-100/50 rounded-2xl p-6 mb-8 relative">
+                        <p className="text-gray-700 font-medium italic text-center text-sm md:text-base px-2">"{lecturaActual.cita}"</p>
+                        <p className="text-right text-[10px] text-pink-400 font-bold uppercase mt-2 font-fredoka">✒️ Mejor Cita</p>
+                      </div>
+                    )}
+
+                    <div className="space-y-6">
+                      <div>
+                        <h3 className="text-sm font-bold text-pink-400 uppercase tracking-wider mb-2 flex items-center gap-2 font-fredoka"><IconSparkles size={16} /> Reseña</h3>
+                        <p className="text-gray-700 bg-white/50 p-5 rounded-2xl border border-pink-50 leading-relaxed italic text-sm font-sans">{lecturaActual.resena || "Sin reseña todavía... 🍵"}</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white/50 p-5 rounded-2xl border border-pink-50 font-sans">
+                          <h3 className="text-[10px] font-bold text-gray-400 uppercase mb-2 border-b border-pink-100 pb-2 font-fredoka">Detalles Generales</h3>
+                          <div className={styleFila}><span>📑 Género:</span> <span className="font-bold text-gray-700">{lecturaActual.genero}</span></div>
+                          <div className={styleFila}><span>📱 Formato:</span> <span className="font-bold text-gray-700">{lecturaActual.formato}</span></div>
+                          <div className={styleFila}><span>🌍 Ubicación:</span> <span className="font-bold text-gray-700">{lecturaActual.ubicacion}</span></div>
+                          <div className={styleFila}><span>⏳ Total días:</span> <span className="font-bold bg-pink-100 text-pink-600 px-2 rounded-md">{lecturaActual.dias}</span></div>
+                        </div>
+                        {lecturaActual.tipo === 'Fanfic' && (
+                          <div className="bg-purple-50/50 p-5 rounded-2xl border border-purple-100 font-sans">
+                            <h3 className="text-[10px] font-bold text-purple-400 uppercase mb-2 border-b border-purple-100 pb-2 font-fredoka">Zona Fanfic</h3>
+                            <div className={styleFila}><span>🌐 Sitio:</span> <span className="font-bold">{lecturaActual.plataforma}</span></div>
+                            <div className={styleFila}><span>📊 Estado:</span> <span className="font-bold">{lecturaActual.estadoPub}</span></div>
+                            <div className={styleFila}><span>✂️ Palabras:</span> <span className="font-bold">{lecturaActual.palabras}</span></div>
+                            <div className={styleFila}><span>🎭 Troop:</span> <span className="font-bold">{lecturaActual.troop}</span></div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                ))
-              )}
-            </div>
-
-            <button onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }} className="fixed bottom-6 right-6 bg-pink-500 text-white p-4 rounded-2xl shadow-xl z-50">
-              <IconPlus size={28} />
-            </button>
-          </div>
-        );
-      };
-
-      const renderVistaDetalle = () => {
-        if (!lecturaActual) return null;
-        const row = "flex justify-between items-center text-sm py-2.5 border-b border-pink-50 last:border-0";
-        return (
-          <div className="pb-12 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="flex justify-between items-center mb-6">
-              <button onClick={() => setVista('lista')} className="flex items-center text-pink-500 bg-white/80 px-4 py-2 rounded-full shadow-sm text-sm font-bold">
-                <IconChevronLeft size={18} /> Volver
-              </button>
-              <div className="flex gap-2">
-                <button onClick={() => setLecturaABorrar(lecturaActual)} className="p-2 bg-rose-50 text-rose-400 rounded-full"><IconTrash size={20}/></button>
-                <button onClick={() => { setFormData(lecturaActual); setVista('formulario'); }} className="p-2 bg-pink-100 text-pink-500 rounded-full"><IconEdit2 size={20}/></button>
-              </div>
-            </div>
-
-            <div className="bg-white/90 backdrop-blur-md rounded-[2.5rem] p-6 shadow-xl border border-pink-100">
-              <div className="mb-6">
-                <span className="inline-block px-2 py-1 bg-pink-100 text-pink-600 rounded-md text-[10px] font-bold mb-2 uppercase tracking-widest">{lecturaActual.tipo}</span>
-                <h2 className="text-3xl font-extrabold text-gray-800 font-fredoka leading-tight">{lecturaActual.titulo}</h2>
-                <p className="text-lg text-gray-500 font-medium">👤 {lecturaActual.autor}</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3 mb-6">
-                <div className="bg-pink-50/50 p-3 rounded-2xl text-center border border-pink-100">
-                  <p className="text-[10px] text-pink-400 font-bold uppercase">Rating</p>
-                  <div className="flex justify-center scale-90">{renderizarEstrellas(lecturaActual.estrellas)}</div>
-                </div>
-                <div className="bg-pink-50/50 p-3 rounded-2xl text-center border border-pink-100">
-                  <p className="text-[10px] text-pink-400 font-bold uppercase">Puntaje</p>
-                  <p className="font-bold text-gray-700">{lecturaActual.puntaje || '—'}/10</p>
                 </div>
               </div>
+            );
+          };
 
-              <div className="space-y-4">
-                <div className="bg-white/50 p-4 rounded-2xl border border-pink-50">
-                  <h3 className="text-[10px] font-bold text-gray-400 uppercase mb-2 border-b border-pink-50 pb-1">Detalles</h3>
-                  <div className={row}><span>📑 Género</span><span className="font-bold">{lecturaActual.genero}</span></div>
-                  <div className={row}><span>📱 Formato</span><span className="font-bold">{lecturaActual.formato}</span></div>
-                  <div className={row}><span>⏳ Días</span><span className="font-bold bg-pink-100 px-2 rounded text-pink-600">{lecturaActual.dias}</span></div>
+          const renderVistaFormulario = () => {
+            const inputStyle = "w-full bg-white/60 border border-pink-200 rounded-xl px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-pink-400 transition-all text-base";
+            const labelStyle = "block text-sm font-bold text-gray-600 mb-1 ml-1 font-fredoka";
+            return (
+              <div className="max-w-3xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-8 duration-500 relative z-10 px-2">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-pink-500 font-fredoka">{formData.id ? 'Editando Aventura 🍡' : 'Set? Ready...Go! 🍡'}</h2>
+                  <button onClick={() => setVista('lista')} className="bg-white p-2 rounded-full shadow-sm text-pink-400"><IconX size={24} /></button>
                 </div>
-
-                {lecturaActual.resena && (
-                  <div className="bg-white/50 p-4 rounded-2xl border border-pink-50 italic text-gray-600 text-sm">
-                    "{lecturaActual.resena}"
+                <form onSubmit={guardarLectura} className="bg-white/80 backdrop-blur-md rounded-[2.5rem] p-6 md:p-10 shadow-xl border border-pink-100 space-y-6 font-sans">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-pink-400 border-b border-pink-100 pb-2 font-fredoka">Datos Principales 🌸</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div><label className={labelStyle}>📖 Título</label><input required type="text" name="titulo" value={formData.titulo} onChange={handleInputChange} className={inputStyle} /></div>
+                      <div><label className={labelStyle}>👤 Autor/a</label><input required type="text" name="autor" value={formData.autor} onChange={handleInputChange} className={inputStyle} /></div>
+                      <div><label className={labelStyle}>🎓 Tipo</label>
+                        <select name="tipo" value={formData.tipo} onChange={handleInputChange} className={inputStyle}>
+                          <option value="Libro">Libro 📚</option>
+                          <option value="Manga">Manga 🎎</option>
+                          <option value="Cómic">Cómic 🦸</option>
+                          <option value="Fanfic">Fanfic 💻</option>
+                          <option value="AudioLibro">Audiolibro 🎧</option>
+                        </select>
+                      </div>
+                      <div><label className={labelStyle}>📑 Género</label><input type="text" name="genero" value={formData.genero} onChange={handleInputChange} className={inputStyle} /></div>
+                    </div>
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        );
-      };
 
-      const renderVistaFormulario = () => {
-        const inputStyle = "w-full bg-white border border-pink-200 rounded-xl px-4 py-3 text-base focus:ring-2 focus:ring-pink-400 outline-none transition-all shadow-sm";
-        const labelStyle = "block text-xs font-bold text-gray-500 mb-1 ml-1 font-fredoka uppercase";
-        
-        return (
-          <div className="pb-12 animate-in slide-in-from-bottom-8 duration-300">
-            <div className="flex justify-between items-center mb-6 px-2">
-              <h2 className="text-2xl font-extrabold text-pink-500 font-fredoka">{formData.id ? 'Editar ✨' : 'Nueva Lectura ✨'}</h2>
-              <button onClick={() => setVista('lista')} className="bg-white p-2 rounded-full shadow-sm"><IconX size={24} /></button>
-            </div>
+                  {formData.tipo === 'Fanfic' && (
+                    <div className="bg-purple-50 p-6 rounded-3xl border border-purple-200 space-y-4">
+                      <h3 className="text-lg font-bold text-purple-500 border-b border-purple-200 pb-2 font-fredoka">Zona Fanfic 💜</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label className="text-xs font-bold text-purple-700">Sitio</label>
+                          <select name="plataforma" value={formData.plataforma} onChange={handleInputChange} className={inputStyle}>
+                            <option>AO3</option><option>Wattpad</option><option>Fanfiction.net</option><option>Twitter/X AU</option><option>Otro</option>
+                          </select>
+                        </div>
+                        <div><label className="text-xs font-bold text-purple-700">Estado</label>
+                          <select name="estadoPub" value={formData.estadoPub} onChange={handleInputChange} className={inputStyle}>
+                            <option>Terminado</option><option>En curso</option><option>Abandonado</option><option>Hiatus</option>
+                          </select>
+                        </div>
+                        <div><label className="text-xs font-bold text-purple-700">Palabras</label><input type="number" name="palabras" value={formData.palabras} onChange={handleInputChange} className={inputStyle} /></div>
+                        <div><label className="text-xs font-bold text-purple-700">Troop</label><input type="text" name="troop" value={formData.troop} onChange={handleInputChange} className={inputStyle} /></div>
+                      </div>
+                    </div>
+                  )}
 
-            <form onSubmit={guardarLectura} className="bg-white/90 p-6 rounded-[2.5rem] shadow-xl border border-pink-100 space-y-5">
-              <div>
-                <label className={labelStyle}>Título</label>
-                <input required type="text" name="titulo" value={formData.titulo} onChange={handleInputChange} className={inputStyle} placeholder="Ej: Heartstopper" />
+                  <div className="space-y-4 bg-white/40 p-6 rounded-3xl border border-pink-100">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div><label className={labelStyle}>📅 Inicio</label><input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleInputChange} className={inputStyle} /></div>
+                      <div><label className={labelStyle}>🏁 Fin</label><input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleInputChange} className={inputStyle} /></div>
+                      <div><label className={labelStyle}>⏳ Días</label><input type="number" name="dias" value={formData.dias} readOnly className={`${inputStyle} bg-pink-50 font-bold`} /></div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-lg font-bold text-pink-400 border-b border-pink-100 pb-2 font-fredoka">Tu Veredicto ✨</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                      <div className="flex flex-col items-center">
+                        <label className={labelStyle}>⭐ Estrellas ({formData.estrellas})</label>
+                        <input type="range" min="1" max="5" name="estrellas" value={formData.estrellas} onChange={handleInputChange} className="w-full accent-pink-400" />
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <label className={labelStyle}>🌡️ Termómetro</label>
+                        <input type="range" min="1" max="5" name="termometro" value={formData.termometro} onChange={handleInputChange} className="w-full accent-orange-400" />
+                        <div className="mt-2">{renderizarTermometro(formData.termometro)}</div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <label className={labelStyle}>🌶️ Spicómetro</label>
+                        <input type="range" min="1" max="5" name="spicometro" value={formData.spicometro} onChange={handleInputChange} className="w-full accent-red-500" />
+                        <div className="mt-2">{renderizarEstrellas(formData.spicometro, "🌶️")}</div>
+                      </div>
+                    </div>
+                    <div><label className={labelStyle}>✍️ Reseña Corta</label><textarea name="resena" value={formData.resena} onChange={handleInputChange} rows="3" className={inputStyle}></textarea></div>
+                    <div><label className={labelStyle}>✒️ Mejor Cita</label><input type="text" name="cita" value={formData.cita} onChange={handleInputChange} className={inputStyle} /></div>
+                  </div>
+
+                  <button type="submit" className="w-full bg-gradient-to-r from-pink-400 to-rose-400 text-white font-bold py-4 rounded-2xl shadow-lg text-lg font-fredoka active:scale-95 transition-transform">
+                    {formData.id ? 'Guardar Cambios ✨' : '¡Anotar en mi Biblioteca! ✨'}
+                  </button>
+                </form>
               </div>
+            );
+          };
+
+          return (
+            <div className="min-h-screen relative bg-[#fff5f7]">
+              <div className="fixed inset-0 bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] -z-10"></div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelStyle}>Tipo</label>
-                  <select name="tipo" value={formData.tipo} onChange={handleInputChange} className={inputStyle}>
-                    <option value="Libro">Libro</option>
-                    <option value="Fanfic">Fanfic</option>
-                    <option value="Manga">Manga</option>
-                  </select>
-                </div>
-                <div>
-                  <label className={labelStyle}>Rating</label>
-                  <select name="estrellas" value={formData.estrellas} onChange={handleInputChange} className={inputStyle}>
-                    {[1,2,3,4,5].map(n => <option key={n} value={n}>{n} Estrellas</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelStyle}>Fecha Inicio</label>
-                  <input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleInputChange} className={inputStyle} />
-                </div>
-                <div>
-                  <label className={labelStyle}>Fecha Fin</label>
-                  <input type="date" name="fechaFin" value={formData.fechaFin} onChange={handleInputChange} className={inputStyle} />
-                </div>
-              </div>
-
-              <div>
-                <label className={labelStyle}>Reseña rápida</label>
-                <textarea name="resena" value={formData.resena} onChange={handleInputChange} rows="3" className={inputStyle} placeholder="¿Qué tal estuvo?"></textarea>
-              </div>
-
-              <button type="submit" className="w-full bg-pink-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-transform font-fredoka text-lg">
-                ¡Guardar! ✨
-              </button>
-            </form>
-          </div>
-        );
-      };
-
-      return (
-        <div className="min-h-screen bg-[#fff5f7] bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] px-4 py-6">
-          <div className="max-w-md mx-auto relative">
-            {vista === 'lista' && renderVistaLista()}
-            {vista === 'formulario' && renderVistaFormulario()}
-            {vista === 'detalle' && renderVistaDetalle()}
-            
-            {mostrarCelebracion && (
-              <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/60 backdrop-blur-sm animate-in fade-in">
-                <div className="bg-white p-8 rounded-[3rem] shadow-2xl border-4 border-pink-100 text-center animate-bounce">
-                  <div className="text-5xl mb-2">🎉</div>
-                  <h2 className="text-xl font-bold text-pink-500 font-fredoka">¡Guardado con éxito!</h2>
-                </div>
-              </div>
-            )}
-
-            {lecturaABorrar && (
-              <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/20 backdrop-blur-sm p-6">
-                <div className="bg-white p-6 rounded-3xl shadow-2xl text-center w-full max-w-xs">
-                  <p className="text-lg font-bold mb-4 font-fredoka text-gray-700">¿Borrar este recuerdo? 🥺</p>
-                  <div className="flex gap-3">
-                    <button onClick={() => setLecturaABorrar(null)} className="flex-1 py-3 bg-gray-100 rounded-xl font-bold">No</button>
-                    <button onClick={() => { setLecturas(lecturas.filter(l => l.id !== lecturaABorrar.id)); setLecturaABorrar(null); setVista('lista'); }} className="flex-1 py-3 bg-rose-400 text-white rounded-xl font-bold">Sí, borrar</button>
+              {mostrarCelebracion && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50 backdrop-blur-sm animate-in fade-in duration-300">
+                  <div className="bg-white p-8 md:p-10 rounded-[3rem] shadow-2xl border-4 border-pink-200 flex flex-col items-center animate-in zoom-in-50 bounce">
+                    <div className="text-6xl mb-4 animate-bounce">🎉🌸📚</div>
+                    <h2 className="text-2xl md:text-3xl font-extrabold text-pink-500 text-center font-fredoka">¡Aventura Guardada!</h2>
+                    <p className="text-pink-400 font-bold bg-pink-50 px-4 py-1 rounded-full mt-2 font-fredoka">Tu biblioteca sigue creciendo ✨</p>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-        </div>
-      );
-    }
+              )}
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
-  </script>
+              {lecturaABorrar && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-4">
+                  <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl border-4 border-rose-100 max-w-sm w-full text-center">
+                    <div className="w-16 h-16 bg-rose-50 text-rose-400 rounded-full flex items-center justify-center mb-4 mx-auto"><IconTrash size={32} /></div>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-2 font-fredoka">¿Borrar recuerdo? 🥺</h3>
+                    <p className="text-gray-600 mb-6 text-sm">Esta acción no se puede deshacer.</p>
+                    <div className="flex gap-3">
+                      <button onClick={() => setLecturaABorrar(null)} className="flex-1 bg-gray-100 py-3 rounded-xl font-bold">No</button>
+                      <button onClick={confirmarEliminar} className="flex-1 bg-rose-400 text-white py-3 rounded-xl font-bold shadow-md shadow-rose-200">Sí, borrar</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="max-w-6xl mx-auto px-4 py-8 relative z-10">
+                {vista === 'lista' && renderVistaLista()}
+                {vista === 'formulario' && renderVistaFormulario()}
+                {vista === 'detalle' && renderVistaDetalle()}
+              </div>
+            </div>
+          );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
 </body>
 </html>
