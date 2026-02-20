@@ -9,9 +9,9 @@
     <title>The BooKeeper</title>
     
     <!-- Ícono para la computadora -->
-    <link rel="icon" href="https://i.postimg.cc/s2cphkt5/freepik-a-chubby-bear-sitting-and-reading-tiny-spectacles-98455.png">
+    <link rel="icon" href="osito.png">
     <!-- Ícono para tu pantalla de inicio del iPhone 📱✨ -->
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/s2cphkt5/freepik-a-chubby-bear-sitting-and-reading-tiny-spectacles-98455.png">
+    <link rel="apple-touch-icon" href="osito.png">
     
     <!-- Enlace al Manifest para convertir en PWA -->
     <link rel="manifest" href="manifest.json">
@@ -40,7 +40,7 @@
         const IconExternalLink = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>);
         const IconTrash = ({ size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>);
 
-        const IMAGEN_OSITO = "https://i.postimg.cc/s2cphkt5/freepik-a-chubby-bear-sitting-and-reading-tiny-spectacles-98455.png";
+        const IMAGEN_OSITO = "osito.png";
 
         // --- DATOS INICIALES ---
         const dummyData = [
