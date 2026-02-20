@@ -4,12 +4,17 @@
     <meta charset="UTF-8">
     <!-- Esta línea evita que la pantalla haga "zoom" al tocar botones, para que se sienta como una App nativa de iPhone -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Color de la barra de estado del celular -->
+    <meta name="theme-color" content="#f472b6">
     <title>The BooKeeper</title>
     
     <!-- Ícono para la computadora -->
     <link rel="icon" href="https://i.postimg.cc/s2cphkt5/freepik-a-chubby-bear-sitting-and-reading-tiny-spectacles-98455.png">
     <!-- Ícono para tu pantalla de inicio del iPhone 📱✨ -->
     <link rel="apple-touch-icon" href="https://i.postimg.cc/s2cphkt5/freepik-a-chubby-bear-sitting-and-reading-tiny-spectacles-98455.png">
+    
+    <!-- Enlace al Manifest para convertir en PWA -->
+    <link rel="manifest" href="manifest.json">
     
     <!-- Librerías mágicas (Tailwind para el diseño y React para la funcionalidad) -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -595,6 +600,21 @@
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
+    </script>
+    
+    <!-- Script para registrar el Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registrado con éxito con el alcance:', registration.scope);
+            })
+            .catch(error => {
+              console.log('Fallo al registrar el ServiceWorker:', error);
+            });
+        });
+      }
     </script>
 </body>
 </html>
