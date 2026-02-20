@@ -1,0 +1,17 @@
+{
+  "name": "The BooKeeper",
+  "short_name": "BooKeeper",
+  "description": "Tu biblioteca personal y mágica",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fff5f7",
+  "theme_color": "#f472b6",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/s2cphkt5/freepik-a-chubby-bear-sitting-and-reading-tiny-spectacles-98455.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
