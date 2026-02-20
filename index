@@ -173,89 +173,94 @@
             ));
           };
 
-          const renderVistaLista = () => (
-            <div className="space-y-6 pb-24">
-              <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white/60 p-6 rounded-3xl shadow-sm backdrop-blur-md border border-pink-100 gap-4">
-                <div className="w-full md:w-auto">
-                  <div className="flex items-end gap-3 mb-2">
-                    <img 
-                      src={IMAGEN_OSITO} 
-                      alt="Osito Lector" 
-                      className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md animate-bounce"
-                      style={{ animationDuration: '3s' }}
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                    <h1 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2 pb-2">
-                      <IconLibrary size={28} className="text-pink-400" /> The BooKeeper 🌸
-                    </h1>
-                  </div>
-                  
-                  <div className="mt-4 bg-white/50 p-4 rounded-2xl border border-pink-50 w-full md:min-w-[300px]">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-bold text-gray-500 flex items-center gap-1">
-                        Meta Anual 🎯 
-                        {!editandoMeta && (
-                          <button onClick={() => setEditandoMeta(true)} className="text-pink-400 hover:text-pink-600 ml-1 p-1">
-                            <IconEdit2 size={14} />
-                          </button>
+          const renderVistaLista = () => {
+            const estiloOsito = { animationDuration: '3s' };
+            const estiloProgreso = { width: Math.min(100, (lecturas.length / metaLectura) * 100) + '%' };
+
+            return (
+              <div className="space-y-6 pb-24">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white/60 p-6 rounded-3xl shadow-sm backdrop-blur-md border border-pink-100 gap-4">
+                  <div className="w-full md:w-auto">
+                    <div className="flex items-end gap-3 mb-2">
+                      <img 
+                        src={IMAGEN_OSITO} 
+                        alt="Osito Lector" 
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md animate-bounce"
+                        style={estiloOsito}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                      <h1 className="text-3xl font-extrabold text-pink-500 flex items-center gap-2 pb-2">
+                        <IconLibrary size={28} className="text-pink-400" /> The BooKeeper 🌸
+                      </h1>
+                    </div>
+                    
+                    <div className="mt-4 bg-white/50 p-4 rounded-2xl border border-pink-50 w-full md:min-w-[300px]">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-bold text-gray-500 flex items-center gap-1">
+                          Meta Anual 🎯 
+                          {!editandoMeta && (
+                            <button onClick={() => setEditandoMeta(true)} className="text-pink-400 hover:text-pink-600 ml-1 p-1">
+                              <IconEdit2 size={14} />
+                            </button>
+                          )}
+                        </span>
+                        {editandoMeta ? (
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="number" 
+                              value={metaLectura} 
+                              onChange={(e) => setMetaLectura(Math.max(1, parseInt(e.target.value) || 1))}
+                              className="w-16 text-center border border-pink-200 rounded-lg text-sm p-1 focus:ring-2 focus:ring-pink-300 outline-none"
+                              autoFocus
+                            />
+                            <button onClick={() => setEditandoMeta(false)} className="text-green-500 hover:text-green-600 bg-green-50 p-1 rounded-md transition-colors"><IconCheck size={16}/></button>
+                          </div>
+                        ) : (
+                          <span className="text-sm font-bold text-pink-500 bg-pink-50 px-2 py-1 rounded-md">{lecturas.length} / {metaLectura}</span>
                         )}
-                      </span>
-                      {editandoMeta ? (
-                        <div className="flex items-center gap-2">
-                          <input 
-                            type="number" 
-                            value={metaLectura} 
-                            onChange={(e) => setMetaLectura(Math.max(1, parseInt(e.target.value) || 1))}
-                            className="w-16 text-center border border-pink-200 rounded-lg text-sm p-1 focus:ring-2 focus:ring-pink-300 outline-none"
-                            autoFocus
-                          />
-                          <button onClick={() => setEditandoMeta(false)} className="text-green-500 hover:text-green-600 bg-green-50 p-1 rounded-md transition-colors"><IconCheck size={16}/></button>
-                        </div>
-                      ) : (
-                        <span className="text-sm font-bold text-pink-500 bg-pink-50 px-2 py-1 rounded-md">{lecturas.length} / {metaLectura}</span>
-                      )}
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
-                      <div 
-                        className="bg-gradient-to-r from-pink-300 to-pink-500 h-3 rounded-full transition-all duration-1000 ease-out" 
-                        style={{ width: Math.min(100, (lecturas.length / metaLectura) * 100) + '%' }}
-                      ></div>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
+                        <div 
+                          className="bg-gradient-to-r from-pink-300 to-pink-500 h-3 rounded-full transition-all duration-1000 ease-out" 
+                          style={estiloProgreso}
+                        ></div>
+                      </div>
                     </div>
                   </div>
+
+                  <button 
+                    onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }}
+                    className="bg-pink-400 hover:bg-pink-500 text-white p-4 rounded-2xl shadow-lg hover:shadow-pink-300/50 transition-all transform hover:-translate-y-1 self-end md:self-auto"
+                  >
+                    <IconPlus size={24} />
+                  </button>
                 </div>
 
-                <button 
-                  onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }}
-                  className="bg-pink-400 hover:bg-pink-500 text-white p-4 rounded-2xl shadow-lg hover:shadow-pink-300/50 transition-all transform hover:-translate-y-1 self-end md:self-auto"
-                >
-                  <IconPlus size={24} />
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {lecturas.map(lectura => (
-                  <div 
-                    key={lectura.id} 
-                    onClick={() => abrirDetalle(lectura)}
-                    className="group bg-white/70 hover:bg-white backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md border border-pink-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${lectura.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
-                        {lectura.tipo}
-                      </span>
-                      <span className="flex">{renderizarEstrellas(lectura.estrellas)}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {lecturas.map(lectura => (
+                    <div 
+                      key={lectura.id} 
+                      onClick={() => abrirDetalle(lectura)}
+                      className="group bg-white/70 hover:bg-white backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md border border-pink-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${lectura.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
+                          {lectura.tipo}
+                        </span>
+                        <span className="flex">{renderizarEstrellas(lectura.estrellas)}</span>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2">{lectura.titulo}</h3>
+                      <p className="text-gray-500 text-sm mb-4">👤 {lectura.autor}</p>
+                      <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">📑 {lectura.genero}</span>
+                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">✨ {lectura.puntaje}/10</span>
+                      </div>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2">{lectura.titulo}</h3>
-                    <p className="text-gray-500 text-sm mb-4">👤 {lectura.autor}</p>
-                    <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                      <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">📑 {lectura.genero}</span>
-                      <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100">✨ {lectura.puntaje}/10</span>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          );
+            );
+          };
 
           const renderVistaDetalle = () => {
             if (!lecturaActual) return null;
