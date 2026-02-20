@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=100%, maximum-scale=100%, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f472b6">
     <title>The BooKeeper</title>
     
@@ -99,7 +99,10 @@
             estadoPub: "Terminado",
             palabras: "45000",
             troop: "Enemies to Lovers",
-            link: "https://archiveofourown.org/"
+            link: "https://archiveofourown.org/",
+            tieneDiversidad: true,
+            tipoDiversidad: "WlW",
+            calidadRepresentacion: "Excelente 😍"
           }
         ];
 
@@ -107,7 +110,8 @@
           titulo: '', autor: '', genero: '', fechaInicio: '', fechaFin: '', dias: '', formato: 'Físico',
           puntaje: '', estrellas: 3, resena: '', tipo: 'Libro', cita: '', termometro: 3,
           ubicacion: '', reeleria: 'Sí', spicometro: 1,
-          plataforma: 'AO3', estadoPub: 'En curso', palabras: '', troop: '', link: ''
+          plataforma: 'AO3', estadoPub: 'En curso', palabras: '', troop: '', link: '',
+          tieneDiversidad: false, tipoDiversidad: 'WlW', calidadRepresentacion: 'Buena 😊'
         };
 
         function App() {
@@ -137,8 +141,8 @@
           }, [formData.fechaInicio, formData.fechaFin]);
 
           const handleInputChange = (e) => {
-            const { name, value } = e.target;
-            setFormData(prev => ({ ...prev, [name]: value }));
+            const { name, value, type, checked } = e.target;
+            setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
           };
 
           const guardarLectura = (e) => {
@@ -208,7 +212,6 @@
             ));
           };
 
-          // ¡Cambiado el emoji a 😍!
           const renderizarTermometro = (valor) => {
             const caritas = ['😱', '😩', '😐', '😊', '😍'];
             return caritas.map((carita, i) => (
@@ -226,7 +229,8 @@
               <div className="space-y-6 pb-24 relative z-10">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white/60 p-6 rounded-3xl shadow-sm backdrop-blur-md border border-pink-100 gap-4">
                   <div className="w-full md:w-auto overflow-hidden">
-                    <div className="flex items-end gap-3 mb-2">
+                    {/* Contenedor del título modificado para apilar el osito arriba */}
+                    <div className="flex flex-col items-center sm:items-start gap-1 mb-4">
                       <img 
                         src={IMAGEN_OSITO} 
                         alt="Osito Lector" 
@@ -234,13 +238,12 @@
                         style={estiloOsito}
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
-                      {/* Título más gordito (font-black) y en una sola línea (whitespace-nowrap) */}
-                      <h1 className="text-3xl md:text-4xl font-black text-pink-500 flex items-center gap-2 pb-2 whitespace-nowrap tracking-tight">
+                      <h1 className="text-[1.75rem] sm:text-3xl md:text-4xl font-black text-pink-500 flex items-center gap-2 whitespace-nowrap tracking-tight">
                         The BooKeeper 🌸
                       </h1>
                     </div>
                     
-                    <div className="mt-4 bg-white/50 p-4 rounded-2xl border border-pink-50 w-full md:min-w-[300px]">
+                    <div className="mt-2 bg-white/50 p-4 rounded-2xl border border-pink-50 w-full md:min-w-[300px]">
                       <div className="flex justify-between items-center mb-2">
                         <span className="text-sm font-bold text-gray-500 flex items-center gap-1">
                           Meta Anual 🎯 
@@ -443,6 +446,20 @@
                           </div>
                         </div>
                       )}
+
+                      {/* NUEVA CAJA DE DETALLE: DIVERSIDAD */}
+                      {lecturaActual.tieneDiversidad && (
+                        <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-5 rounded-2xl border border-cyan-200 space-y-3 mt-6">
+                          <h3 className="text-sm font-bold text-cyan-600 uppercase tracking-wider mb-2 border-b border-cyan-200 pb-2 flex items-center gap-2">
+                            🌈 Diversidad
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <p className="text-gray-700 text-sm"><span>Comunidad:</span> <br/><span className="font-bold">{lecturaActual.tipoDiversidad}</span></p>
+                            <p className="text-gray-700 text-sm"><span>Representación:</span> <br/><span className="font-bold">{lecturaActual.calidadRepresentacion}</span></p>
+                          </div>
+                        </div>
+                      )}
+
                     </div>
                   </div>
                 </div>
@@ -549,6 +566,53 @@
                       </div>
                     </div>
                   )}
+
+                  {/* NUEVA SECCIÓN DE FORMULARIO: DIVERSIDAD */}
+                  <div className="bg-white/40 p-6 rounded-3xl border border-pink-100 flex flex-col gap-4">
+                    <label className="flex items-center gap-3 cursor-pointer w-fit">
+                      <input
+                        type="checkbox"
+                        name="tieneDiversidad"
+                        checked={formData.tieneDiversidad}
+                        onChange={handleInputChange}
+                        className="w-6 h-6 text-pink-500 rounded-lg focus:ring-pink-400 accent-pink-500 cursor-pointer"
+                      />
+                      <span className="text-lg font-extrabold text-pink-500">¿Tiene representación diversa? 🌈</span>
+                    </label>
+
+                    {formData.tieneDiversidad && (
+                      <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-6 rounded-2xl border border-cyan-200 space-y-4 animate-in zoom-in-95 duration-300 mt-2">
+                        <h3 className="text-md font-extrabold text-cyan-600 border-b border-cyan-200 pb-2 flex items-center gap-2">
+                          <IconSparkles size={18}/> Detalles de Representación
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-bold text-cyan-700 mb-1 ml-1">Comunidad principal</label>
+                            <select name="tipoDiversidad" value={formData.tipoDiversidad} onChange={handleInputChange} className="w-full bg-white/60 border border-cyan-200 rounded-xl px-4 py-3 text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:bg-white transition-all shadow-sm">
+                              <option value="WlW">WlW (Mujeres x Mujeres)</option>
+                              <option value="MlM">MlM (Hombres x Hombres)</option>
+                              <option value="Bisexual">Bisexual</option>
+                              <option value="Transgénero">Transgénero</option>
+                              <option value="No Binario">No Binario</option>
+                              <option value="Asexual/A-spec">Asexual / A-spec</option>
+                              <option value="Sáfica/Aquileana">Sáfica / Aquileana general</option>
+                              <option value="Múltiple">Múltiple representación</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-bold text-cyan-700 mb-1 ml-1">Calidad de representación</label>
+                            <select name="calidadRepresentacion" value={formData.calidadRepresentacion} onChange={handleInputChange} className="w-full bg-white/60 border border-cyan-200 rounded-xl px-4 py-3 text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:bg-white transition-all shadow-sm">
+                              <option value="Excelente 😍">Excelente 😍</option>
+                              <option value="Buena 😊">Buena 😊</option>
+                              <option value="Regular 😐">Regular 😐</option>
+                              <option value="Mala 😩">Mala 😩</option>
+                              <option value="Estereotipada/Dañina 😱">Estereotipada / Dañina 😱</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="space-y-4 bg-white/40 p-6 rounded-3xl border border-pink-100">
                     <h3 className="text-sm md:text-base font-bold text-pink-400 border-b border-pink-100 pb-2 italic">
