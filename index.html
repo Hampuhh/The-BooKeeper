@@ -10,32 +10,72 @@
     <link rel="apple-touch-icon" href="osito.png">
     <link rel="manifest" href="manifest.json">
     
-    <!-- FUENTE JAPONESA KAWAII (M PLUS Rounded 1c) -->
+    <!-- FUENTE JAPONESA KAWAII -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Configuración para que Tailwind use la nueva fuente redondeada -->
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
               sans: ['"M PLUS Rounded 1c"', 'sans-serif'],
+            },
+            animation: {
+              'bounce-slow': 'bounce 3s infinite',
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             }
           }
         }
       }
     </script>
 
+    <!-- Librerías de React -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+      /* Estilos para la pantalla de carga (antes de que React reaccione) */
+      #initial-loader {
+        position: fixed;
+        inset: 0;
+        background-color: #fff5f7;
+        background-image: radial-gradient(#ffd1dc 1px, transparent 1px);
+        background-size: 20px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        font-family: 'M PLUS Rounded 1c', sans-serif;
+        color: #f472b6;
+      }
+      .loader-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #fce7f3;
+        border-top: 5px solid #f472b6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
 <body class="antialiased font-sans text-slate-700 selection:bg-pink-200">
-    <div id="root"></div>
+    
+    <div id="root">
+        <!-- PANTALLA DE CARGA: Se mostrará hasta que React esté listo, luego React la reemplazará automáticamente -->
+        <div id="initial-loader">
+            <div class="loader-spinner"></div>
+            <h2 style="font-weight: 900; font-size: 1.5rem; letter-spacing: -0.05em;">Abriendo la biblioteca... 🌸</h2>
+            <p style="font-weight: 700; color: #fb7185; opacity: 0.8; margin-top: 8px;">Preparando la magia</p>
+        </div>
+    </div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
@@ -56,7 +96,7 @@
 
         const IMAGEN_OSITO = "osito.png";
 
-        // --- DATOS INICIALES ---
+        // --- DATOS INICIALES (Por si acaso está vacío) ---
         const dummyData = [
           {
             id: 1,
@@ -75,34 +115,8 @@
             termometro: 4,
             ubicacion: "Japón Mágico",
             reeleria: "Sí",
-            spicometro: 1
-          },
-          {
-            id: 2,
-            titulo: "Bajo los Cerezos",
-            autor: "SakuraLover99",
-            genero: "Romance",
-            fechaInicio: "2023-11-10",
-            fechaFin: "2023-11-12",
-            dias: 2,
-            formato: "Digital",
-            puntaje: "8.5",
-            estrellas: 4,
-            resena: "Muy tierno, ¡me encantó la dinámica de los protagonistas! 🍡",
-            tipo: "Fanfic",
-            cita: "Incluso en esta línea temporal, te habría encontrado bajo el mismo árbol.",
-            termometro: 5,
-            ubicacion: "Tokio",
-            reeleria: "Tal vez",
-            spicometro: 3,
-            plataforma: "AO3",
-            estadoPub: "Terminado",
-            palabras: "45000",
-            troop: "Enemies to Lovers",
-            link: "https://archiveofourown.org/",
-            tieneDiversidad: true,
-            tipoDiversidad: "WlW",
-            calidadRepresentacion: "Excelente 😍"
+            spicometro: 1,
+            tieneDiversidad: false
           }
         ];
 
@@ -115,12 +129,25 @@
         };
 
         function App() {
-          const [lecturas, setLecturas] = useState(dummyData);
+          // --- SISTEMA DE GUARDADO (LOCAL STORAGE) ---
+          // Al iniciar, busca si hay datos guardados previamente
+          const [lecturas, setLecturas] = useState(() => {
+            const lecturasGuardadas = localStorage.getItem('bookeeper_lecturas');
+            if (lecturasGuardadas) {
+              return JSON.parse(lecturasGuardadas);
+            }
+            return dummyData; // Si no hay nada, muestra el de prueba
+          });
+
+          const [metaLectura, setMetaLectura] = useState(() => {
+            const metaGuardada = localStorage.getItem('bookeeper_meta');
+            return metaGuardada ? parseInt(metaGuardada, 10) : 20;
+          });
+
           const [vista, setVista] = useState('lista'); 
           const [lecturaActual, setLecturaActual] = useState(null);
           const [formData, setFormData] = useState(estadoInicialFormulario);
 
-          const [metaLectura, setMetaLectura] = useState(20);
           const [editandoMeta, setEditandoMeta] = useState(false);
           const [mostrarCelebracion, setMostrarCelebracion] = useState(false);
           const [lecturaABorrar, setLecturaABorrar] = useState(null);
@@ -128,6 +155,17 @@
           const fileInputRef = useRef(null);
           const [errorMensaje, setErrorMensaje] = useState("");
 
+          // Cada vez que 'lecturas' cambie, lo guardamos en la memoria del celular
+          useEffect(() => {
+            localStorage.setItem('bookeeper_lecturas', JSON.stringify(lecturas));
+          }, [lecturas]);
+
+          // Cada vez que cambie la 'meta', la guardamos
+          useEffect(() => {
+            localStorage.setItem('bookeeper_meta', metaLectura.toString());
+          }, [metaLectura]);
+
+          // Calcular días automáticamente
           useEffect(() => {
             if (formData.fechaInicio && formData.fechaFin) {
               const inicio = new Date(formData.fechaInicio);
@@ -154,7 +192,7 @@
               }
             } else {
               const nuevaLectura = { ...formData, id: Date.now() };
-              setLecturas([nuevaLectura, ...lecturas]);
+              setLecturas([nuevaLectura, ...lecturas]); // El useEffect se encarga de guardar
             }
             
             setVista('lista');
@@ -226,15 +264,14 @@
             const estiloProgreso = { width: Math.min(100, (lecturas.length / metaLectura) * 100) + '%' };
 
             return (
-              <div className="space-y-6 pb-24 relative z-10">
+              <div className="space-y-6 pb-24 relative z-10 animate-in fade-in duration-500">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white/60 p-6 rounded-3xl shadow-sm backdrop-blur-md border border-pink-100 gap-4">
                   <div className="w-full md:w-auto overflow-hidden">
-                    {/* Contenedor del título modificado para apilar el osito arriba */}
                     <div className="flex flex-col items-center sm:items-start gap-1 mb-4">
                       <img 
                         src={IMAGEN_OSITO} 
                         alt="Osito Lector" 
-                        className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md animate-bounce flex-shrink-0"
+                        className="w-16 h-16 md:w-20 md:h-20 object-contain drop-shadow-md animate-bounce-slow flex-shrink-0"
                         style={estiloOsito}
                         onError={(e) => { e.target.style.display = 'none'; }}
                       />
@@ -277,7 +314,6 @@
                     </div>
                   </div>
 
-                  {/* BOTONES DE RESPALDO Y NUEVA LECTURA */}
                   <div className="flex gap-2 self-end md:self-auto">
                     <input type="file" accept=".json" style={{display: 'none'}} ref={fileInputRef} onChange={importarDatos} />
                     
@@ -307,28 +343,38 @@
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {lecturas.map(lectura => (
-                    <div 
-                      key={lectura.id} 
-                      onClick={() => abrirDetalle(lectura)}
-                      className="group bg-white/70 hover:bg-white backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md border border-pink-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
-                    >
-                      <div className="flex justify-between items-start mb-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${lectura.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
-                          {lectura.tipo}
-                        </span>
-                        <span className="flex">{renderizarEstrellas(lectura.estrellas)}</span>
+                {lecturas.length === 0 ? (
+                  <div className="text-center bg-white/60 p-10 rounded-3xl border border-pink-100 shadow-sm mt-8">
+                    <p className="text-xl font-bold text-gray-500 mb-2">¡Tu biblioteca está vacía! 📚</p>
+                    <p className="text-gray-400 mb-6">Agrega tu primera lectura tocando el botón rosa con el símbolo "+".</p>
+                    <button onClick={() => { setFormData(estadoInicialFormulario); setVista('formulario'); }} className="inline-flex bg-pink-400 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md">
+                      Comenzar mi primera aventura
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {lecturas.map(lectura => (
+                      <div 
+                        key={lectura.id} 
+                        onClick={() => abrirDetalle(lectura)}
+                        className="group bg-white/70 hover:bg-white backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-md border border-pink-100 cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${lectura.tipo === 'Fanfic' ? 'bg-purple-100 text-purple-600' : 'bg-green-100 text-green-600'}`}>
+                            {lectura.tipo}
+                          </span>
+                          <span className="flex">{renderizarEstrellas(lectura.estrellas)}</span>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2 leading-tight">{lectura.titulo}</h3>
+                        <p className="text-gray-500 text-sm mb-4 font-medium">👤 {lectura.autor}</p>
+                        <div className="flex flex-wrap gap-2 text-xs text-gray-600">
+                          <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 font-bold">📑 {lectura.genero}</span>
+                          <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 font-bold">✨ {lectura.puntaje}/10</span>
+                        </div>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-1 line-clamp-2 leading-tight">{lectura.titulo}</h3>
-                      <p className="text-gray-500 text-sm mb-4 font-medium">👤 {lectura.autor}</p>
-                      <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 font-bold">📑 {lectura.genero}</span>
-                        <span className="bg-pink-50 px-2 py-1 rounded-lg border border-pink-100 font-bold">✨ {lectura.puntaje}/10</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           };
@@ -447,7 +493,6 @@
                         </div>
                       )}
 
-                      {/* NUEVA CAJA DE DETALLE: DIVERSIDAD */}
                       {lecturaActual.tieneDiversidad && (
                         <div className="bg-gradient-to-br from-cyan-50 to-blue-50 p-5 rounded-2xl border border-cyan-200 space-y-3 mt-6">
                           <h3 className="text-sm font-bold text-cyan-600 uppercase tracking-wider mb-2 border-b border-cyan-200 pb-2 flex items-center gap-2">
@@ -469,16 +514,12 @@
 
           const renderVistaFormulario = () => {
             const inputStyle = "w-full bg-white/60 border border-pink-200 rounded-xl px-4 py-3 text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition-all shadow-sm";
-            
-            // Un estilo especial para las fechas para que no se vean gigantescas
             const dateInputStyle = "w-full bg-white/60 border border-pink-200 rounded-xl px-3 py-2 text-sm text-gray-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400 focus:bg-white transition-all shadow-sm";
-            
             const labelStyle = "block text-sm font-bold text-gray-600 mb-1 ml-1";
 
             return (
               <div className="max-w-3xl mx-auto pb-12 animate-in fade-in slide-in-from-bottom-8 duration-500 relative z-10">
                 <div className="flex justify-between items-center mb-6">
-                  {/* Títulos actualizados */}
                   <h2 className="text-3xl font-black text-pink-500 flex items-center gap-2 tracking-tight">
                     <IconSparkles size={28} className="text-pink-400" /> {formData.id ? 'Set? Ready...Edit! 🍡' : 'Set? Ready...Go! 🍡'}
                   </h2>
@@ -619,7 +660,6 @@
                       "Books break the shackles of time—proof that humans can work magic" ⏱️
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {/* Fechas con estilo más pequeño para encajar mejor */}
                       <div>
                         <label className={labelStyle}>📅 Fecha Inicio</label>
                         <input type="date" name="fechaInicio" value={formData.fechaInicio} onChange={handleInputChange} className={dateInputStyle} />
@@ -638,7 +678,6 @@
                   <div className="space-y-6">
                     <h3 className="text-lg font-extrabold text-pink-400 border-b border-pink-100 pb-2">Tu Veredicto ✨</h3>
                     
-                    {/* Diseño en filas separadas para las calificaciones */}
                     <div className="flex flex-col gap-4 mb-6">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-white/50 p-4 rounded-2xl border border-pink-50 gap-4">
                         <label className={`${labelStyle} w-full sm:w-1/3 mb-0 text-base`}>⭐ Estrellas</label>
@@ -701,9 +740,7 @@
           };
 
           return (
-            // Contenedor general transparente (el fondo está en la capa fija de atrás)
             <div className="min-h-screen relative overflow-x-hidden">
-              {/* CAPA DE FONDO FIJA (Evita problemas de bloques blancos al bajar) */}
               <div className="fixed inset-0 bg-[#fff5f7] bg-[radial-gradient(#ffd1dc_1px,transparent_1px)] [background-size:20px_20px] -z-10"></div>
               
               {mostrarCelebracion && (
@@ -718,7 +755,6 @@
                 </div>
               )}
 
-              {/* MODAL PARA ERRORES DE IMPORTACIÓN */}
               {errorMensaje && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
                   <div className="bg-white p-8 rounded-[2rem] shadow-2xl border-4 border-rose-100 max-w-sm w-full mx-4 flex flex-col items-center text-center transform animate-in zoom-in-95">
@@ -732,7 +768,6 @@
                 </div>
               )}
 
-              {/* MODAL PARA CONFIRMAR ELIMINACIÓN */}
               {lecturaABorrar && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-200">
                   <div className="bg-white p-8 rounded-[2rem] shadow-2xl border-4 border-rose-100 max-w-sm w-full mx-4 flex flex-col items-center text-center transform animate-in zoom-in-95">
@@ -771,7 +806,7 @@
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('sw.js')
             .then(registration => {
-              console.log('ServiceWorker registrado con éxito con el alcance:', registration.scope);
+              console.log('ServiceWorker registrado con éxito');
             })
             .catch(error => {
               console.log('Fallo al registrar el ServiceWorker:', error);
